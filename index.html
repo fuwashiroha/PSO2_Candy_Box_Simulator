@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#183d50">
+  <title>PSO2糖果盒模拟器</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <script defer src="data.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="i18n.js"></script>
+  <script defer src="zh.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">SU</span><div><h1>PSO2糖果盒模拟器</h1><span class="brand-sub">by fuwashiroha</span></div><span class="offline">离线版</span></div>
+    <div class="header-tools"><select id="language" aria-label="界面语言"><option value="zh">中文</option><option value="ja">日本語</option></select><button id="importBtn">导入备份</button><button id="exportAll">导出备份</button></div>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar panel">
+      <div class="section-heading"><h2>宠物</h2><span>14</span></div>
+      <nav id="petList" class="pet-list" aria-label="选择宠物"></nav>
+      <div class="preset-heading"><h2>预设列表</h2><button id="newBlank" class="text-button">＋ 空白</button></div>
+      <div class="tabs" aria-label="预设分类"><button id="builtTab" class="active" aria-pressed="true">参考预设</button><button id="customTab" aria-pressed="false">我的预设 <span id="customCount">0</span></button></div>
+      <div id="presetList" class="preset-list"></div>
+      <div class="sidebar-foot">修改后点击「保存预设」归档。<br>编辑中的棋盘会自动保留。</div>
+    </aside>
+    <section class="editor">
+      <div class="editor-heading"><div><p class="eyebrow">キャンディーボックス</p><h2 id="petName">ワンダ</h2><p id="docName" class="doc-name"></p></div><button id="savePreset" class="primary">保存预设</button></div>
+      <div class="toolbar"><div class="history-tools"><button id="undoBtn" title="Ctrl+Z">↶ 撤销</button><button id="redoBtn" title="Ctrl+Y">↷ 重做</button></div><div><button id="exportCurrent">导出当前</button><button id="clearBtn">清空糖果</button><button id="obstacleBtn" aria-pressed="false">障碍编辑</button></div></div>
+      <div class="board-settings"><label>等级 <input id="level" type="number" min="1" max="130" value="130" aria-label="宠物等级"></label><label>稀有度 <select id="rarity" aria-label="宠物稀有度"></select></label><label>原属性 <select id="attribute" aria-label="宠物原属性"></select></label><span class="setting-note">方向固定 · 不可旋转</span></div>
+      <div id="obstacleTools" class="obstacle-tools" hidden><span>点击焦糖位置以清除或恢复；果冻随等级变化。</span><button id="removeCaramel">清除全部焦糖</button><button id="restoreCaramel">恢复全部焦糖</button></div>
+      <div class="board-shell"><div class="board-ribbon" aria-hidden="true">✦</div><div id="board" class="board" role="group" aria-label="8乘8糖果盒棋盘"></div><div class="board-bottom" aria-hidden="true">✧ &nbsp; CANDY BOX &nbsp; ✧</div></div>
+      <div class="board-caption"><span id="boardUsage"></span><span><i class="legend-paper"></i>纸块 <i class="legend-caramel"></i>焦糖 <i class="legend-jelly"></i>果冻</span></div>
+      <p id="interactionHelp" class="interaction-help" role="status">选择右侧糖果，再点击格子放置；也可以拖动。</p>
+      <div id="counts" class="counts panel"></div>
+    </section>
+    <aside class="library panel">
+      <div class="section-heading"><h2>糖果目录</h2><span id="catalogTotal">119</span></div>
+      <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索日文名称 / 中文效果" aria-label="搜索糖果"></div>
+      <div id="categoryFilters" class="category-filters" aria-label="糖果分类"></div>
+      <div class="catalog-heading"><span id="catalogLabel">芭菲 / パフェ</span><label><input type="checkbox" id="onlyFits">仅可放置</label></div>
+      <div id="catalog" class="catalog"></div>
+      <section id="selection" class="selection"><div class="empty-selection">点击糖果查看效果与压缩尺寸</div></section>
+      <section class="summary"><div class="section-heading"><h2>糖果效果</h2><span>实时</span></div><div id="stats"></div><details><summary>已放糖果与条件效果</summary><div id="effects"></div></details></section>
+    </aside>
+  </main>
+  <footer class="app-footer">© SEGA</footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <input id="importInput" type="file" accept=".json,application/json" hidden>
+  <dialog id="saveDialog"><form id="saveForm"><div class="dialog-heading"><h2>保存到我的预设</h2><button type="button" data-close aria-label="关闭">×</button></div><label>预设名称<input id="presetName" required maxlength="100" autocomplete="off"></label><label>备注<textarea id="presetNote" rows="4" maxlength="3000"></textarea></label><p class="muted">保存糖果位置、压缩阶段、等级、属性与障碍状态。</p><div class="dialog-actions"><button type="button" data-close>取消</button><button id="saveCopy" type="button">另存一份</button><button type="submit" class="primary" id="saveConfirm">保存</button></div></form></dialog>
+  <dialog id="importDialog"><div class="dialog-heading"><h2>导入备份</h2><button data-close aria-label="关闭">×</button></div><p id="importSummary"></p><p class="muted">合并会保留现有预设，导入的同名预设会自动加上编号。替换会先下载一份现有预设备份。</p><div class="dialog-actions"><button data-close>取消</button><button id="replaceImport">备份并替换全部</button><button id="mergeImport" class="primary">合并导入</button></div></dialog>
+  <dialog id="confirmDialog"><div class="dialog-heading"><h2 id="confirmTitle"></h2><button data-close aria-label="关闭">×</button></div><p id="confirmMessage"></p><div class="dialog-actions"><button data-close>取消</button><button id="confirmAction" class="primary">确定</button></div></dialog>
+</body>
+</html>
